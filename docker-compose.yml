@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: projetinho-erica-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: erica
+      POSTGRES_PASSWORD: erica_dev
+      POSTGRES_DB: projetinho_erica
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U erica -d projetinho_erica"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

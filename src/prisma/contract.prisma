@@ -1,0 +1,61 @@
+// use prisma-next
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+
+  weddings     Wedding[]
+}
+
+model Wedding {
+  id          Int      @id @default(autoincrement())
+  coupleName  String
+  slug        String   @unique
+  weddingDate DateTime
+  createdAt   DateTime @default(now())
+
+  ownerId     Int
+  owner       User     @relation(fields: [ownerId], references: [id])
+
+  gifts Gift[]
+}
+
+model Gift {
+  id Int @id @default(autoincrement())
+  name String
+  description String?
+  price Float?
+  weddingId Int
+  wedding Wedding @relation(fields: [weddingId], references: [id])
+
+  orders Order[]
+}
+
+model Order {
+  id         Int      @id @default(autoincrement())
+  giftId     Int
+  guestId    Int
+  guestName  String
+  guestEmail String
+  message    String?
+  amount     Float
+  status     String
+  paymentId  String?
+  createdAt  DateTime @default(now())
+  paidAt     DateTime?
+
+  gift       Gift     @relation(fields: [giftId], references: [id])
+  guest      Guest    @relation(fields: [guestId], references: [id])
+}
+
+model Guest {
+  id         Int      @id @default(autoincrement())
+  name       String
+  email      String   @unique
+  createdAt  DateTime @default(now())
+
+  orders     Order[]
+}

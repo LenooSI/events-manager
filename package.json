@@ -1,0 +1,29 @@
+{
+  "name": "projetinho-erica",
+  "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "prisma skills sync || exit 0",
+    "contract:emit": "prisma contract emit"
+  },
+  "dependencies": {
+    "@js-temporal/polyfill": "^0.5.1",
+    "@prisma/client": "^7.10.0",
+    "@prisma/orm-postgres": "^8.0.0-rc.8",
+    "fastify": "^5.12.1"
+  },
+  "devDependencies": {
+    "@prisma/cli-engine": "^0.2.3",
+    "@types/node": "^26.2.0",
+    "dotenv": "^17.4.2",
+    "prisma": "^8.0.0-rc.10",
+    "tsx": "^4.23.12",
+    "typescript": "^7.0.2"
+  }
+}

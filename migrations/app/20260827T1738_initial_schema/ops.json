@@ -1,0 +1,404 @@
+[
+  {
+    "id": "table.gift",
+    "label": "Create table \"gift\"",
+    "summary": "Creates table \"gift\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "gift"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"gift\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"gift\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"gift\"",
+        "sql": "CREATE TABLE \"public\".\"gift\" (\n  \"description\" text,\n  \"id\" SERIAL NOT NULL,\n  \"name\" text NOT NULL,\n  \"price\" float8,\n  \"weddingId\" int4 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"gift\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"gift\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.guest",
+    "label": "Create table \"guest\"",
+    "summary": "Creates table \"guest\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "guest"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"guest\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"guest\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"guest\"",
+        "sql": "CREATE TABLE \"public\".\"guest\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"email\" text NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"name\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"guest\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"guest\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.order",
+    "label": "Create table \"order\"",
+    "summary": "Creates table \"order\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "order"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"order\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"order\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"order\"",
+        "sql": "CREATE TABLE \"public\".\"order\" (\n  \"amount\" float8 NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"giftId\" int4 NOT NULL,\n  \"guestEmail\" text NOT NULL,\n  \"guestId\" int4 NOT NULL,\n  \"guestName\" text NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"message\" text,\n  \"paidAt\" timestamptz,\n  \"paymentId\" text,\n  \"status\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"order\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"order\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.guest.guest_email_key",
+    "label": "Add unique constraint on \"guest\" (email)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "guest_email_key",
+        "table": "guest"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"guest_email_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "guest_email_key",
+          "public",
+          "\"public\".\"guest\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"guest_email_key\"",
+        "sql": "ALTER TABLE \"public\".\"guest\" ADD CONSTRAINT \"guest_email_key\" UNIQUE (\"email\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"guest_email_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "guest_email_key",
+          "public",
+          "\"public\".\"guest\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.gift.gift_weddingId_idx_b30e5447",
+    "label": "Create index \"gift_weddingId_idx_b30e5447\" on \"gift\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "gift_weddingId_idx_b30e5447",
+        "table": "gift"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"gift_weddingId_idx_b30e5447\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"gift_weddingId_idx_b30e5447\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"gift_weddingId_idx_b30e5447\"",
+        "sql": "CREATE INDEX \"gift_weddingId_idx_b30e5447\" ON \"public\".\"gift\" (\"weddingId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"gift_weddingId_idx_b30e5447\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"gift_weddingId_idx_b30e5447\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.order.order_giftId_idx_97c6d28f",
+    "label": "Create index \"order_giftId_idx_97c6d28f\" on \"order\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "order_giftId_idx_97c6d28f",
+        "table": "order"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"order_giftId_idx_97c6d28f\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"order_giftId_idx_97c6d28f\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"order_giftId_idx_97c6d28f\"",
+        "sql": "CREATE INDEX \"order_giftId_idx_97c6d28f\" ON \"public\".\"order\" (\"giftId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"order_giftId_idx_97c6d28f\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"order_giftId_idx_97c6d28f\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.order.order_guestId_idx_39c95865",
+    "label": "Create index \"order_guestId_idx_39c95865\" on \"order\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "order_guestId_idx_39c95865",
+        "table": "order"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"order_guestId_idx_39c95865\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"order_guestId_idx_39c95865\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"order_guestId_idx_39c95865\"",
+        "sql": "CREATE INDEX \"order_guestId_idx_39c95865\" ON \"public\".\"order\" (\"guestId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"order_guestId_idx_39c95865\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"order_guestId_idx_39c95865\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.gift.gift_weddingId_fkey",
+    "label": "Add foreign key \"gift_weddingId_fkey\" on \"gift\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "gift_weddingId_fkey",
+        "table": "gift"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"gift_weddingId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "gift_weddingId_fkey",
+          "public",
+          "\"public\".\"gift\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"gift_weddingId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"gift\"\nADD CONSTRAINT \"gift_weddingId_fkey\"\nFOREIGN KEY (\"weddingId\")\nREFERENCES \"public\".\"wedding\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"gift_weddingId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "gift_weddingId_fkey",
+          "public",
+          "\"public\".\"gift\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.order.order_giftId_fkey",
+    "label": "Add foreign key \"order_giftId_fkey\" on \"order\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "order_giftId_fkey",
+        "table": "order"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"order_giftId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "order_giftId_fkey",
+          "public",
+          "\"public\".\"order\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"order_giftId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"order\"\nADD CONSTRAINT \"order_giftId_fkey\"\nFOREIGN KEY (\"giftId\")\nREFERENCES \"public\".\"gift\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"order_giftId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "order_giftId_fkey",
+          "public",
+          "\"public\".\"order\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.order.order_guestId_fkey",
+    "label": "Add foreign key \"order_guestId_fkey\" on \"order\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "order_guestId_fkey",
+        "table": "order"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"order_guestId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "order_guestId_fkey",
+          "public",
+          "\"public\".\"order\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"order_guestId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"order\"\nADD CONSTRAINT \"order_guestId_fkey\"\nFOREIGN KEY (\"guestId\")\nREFERENCES \"public\".\"guest\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"order_guestId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "order_guestId_fkey",
+          "public",
+          "\"public\".\"order\""
+        ]
+      }
+    ]
+  }
+]

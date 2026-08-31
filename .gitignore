@@ -1,0 +1,62 @@
+# Dependências
+node_modules/
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build / output
+/dist/
+build/
+dist/
+out/
+.next/
+.nuxt/
+coverage/
+.cache/
+.vite/
+*.tsbuildinfo
+
+# Prisma / generated files
+/src/generated/prisma
+prisma/*.db
+prisma/*.db-journal
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# IDE / editor
+.vscode/
+.idea/
+.agents/
+.claude/
+.cursor/
+.devin/
+.windsurf/
+**/.agents/
+**/.claude/
+**/.cursor/
+**/.devin/
+**/.windsurf/
+**/skills/
+**/skills/**
+
+.DS_Store
+Thumbs.db
+
+# OS files
+*.swp
+*.swo
+*~
+
+# Temporary / local files
+.tmp/
+tmp/
+temp/
