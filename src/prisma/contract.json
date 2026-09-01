@@ -16,6 +16,10 @@
       "model": "Order",
       "namespace": "public"
     },
+    "presenceConfirmation": {
+      "model": "PresenceConfirmation",
+      "namespace": "public"
+    },
     "user": {
       "model": "User",
       "namespace": "public"
@@ -153,6 +157,21 @@
               }
             },
             "relations": {
+              "confirmations": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "guestId"
+                  ]
+                },
+                "to": {
+                  "model": "PresenceConfirmation",
+                  "namespace": "public"
+                }
+              },
               "orders": {
                 "cardinality": "1:N",
                 "on": {
@@ -340,6 +359,68 @@
               "table": "order"
             }
           },
+          "PresenceConfirmation": {
+            "fields": {
+              "guestId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "weddingId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "guest": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "guestId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Guest",
+                  "namespace": "public"
+                }
+              },
+              "wedding": {
+                "cardinality": "N:1",
+                "on": {
+                  "localFields": [
+                    "weddingId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Wedding",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "guestId": {
+                  "column": "guestId"
+                },
+                "weddingId": {
+                  "column": "weddingId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "presenceConfirmation"
+            }
+          },
           "User": {
             "fields": {
               "createdAt": {
@@ -475,6 +556,21 @@
                 },
                 "to": {
                   "model": "Gift",
+                  "namespace": "public"
+                }
+              },
+              "guestList": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "weddingId"
+                  ]
+                },
+                "to": {
+                  "model": "PresenceConfirmation",
                   "namespace": "public"
                 }
               },
@@ -766,6 +862,79 @@
               },
               "uniques": []
             },
+            "presenceConfirmation": {
+              "columns": {
+                "guestId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "weddingId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "guestId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "presenceConfirmation"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "guest"
+                  }
+                },
+                {
+                  "source": {
+                    "columns": [
+                      "weddingId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "presenceConfirmation"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "wedding"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "guestId"
+                  ],
+                  "name": "presenceConfirmation_guestId_idx_39c95865",
+                  "prefix": "presenceConfirmation_guestId_idx",
+                  "unique": false
+                },
+                {
+                  "columns": [
+                    "weddingId"
+                  ],
+                  "name": "presenceConfirmation_weddingId_idx_b30e5447",
+                  "prefix": "presenceConfirmation_weddingId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "guestId",
+                  "weddingId"
+                ]
+              },
+              "uniques": []
+            },
             "user": {
               "columns": {
                 "createdAt": {
@@ -905,7 +1074,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "6d554349561955fb7faab530d23bf461f2bdce71f90f662cf9444f237c25700c"
+    "storageHash": "a84901c1c9d6d5d8400f3c1b9e0790ce37164d1e5bc6ceb04b86bb9b37cd61d3"
   },
   "capabilities": {
     "postgres": {

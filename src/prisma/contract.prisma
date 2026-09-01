@@ -21,6 +21,7 @@ model Wedding {
   owner       User     @relation(fields: [ownerId], references: [id])
 
   gifts Gift[]
+  guestList PresenceConfirmation[]
 }
 
 model Gift {
@@ -58,4 +59,15 @@ model Guest {
   createdAt  DateTime @default(now())
 
   orders     Order[]
+  confirmations PresenceConfirmation[]
+}
+
+model PresenceConfirmation {
+  guestId  Int
+  weddingId Int
+
+  guest    Guest    @relation(fields: [guestId], references: [id])
+  wedding  Wedding  @relation(fields: [weddingId], references: [id])
+
+  @@id([guestId, weddingId])
 }

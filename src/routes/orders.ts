@@ -1,3 +1,4 @@
+import { Temporal } from "@js-temporal/polyfill";
 import { FastifyInstance } from "fastify";
 import { db } from "../prisma/db";
 
@@ -24,7 +25,7 @@ export async function ordersRoutes(app: FastifyInstance) {
       amount: body.amount,
       status: body.status,
       paymentId: body.paymentId,
-      paidAt: body.paidAt ? new Date(body.paidAt) : undefined,
+      paidAt: body.paidAt ? Temporal.Instant.from(body.paidAt) : undefined,
     });
 
     return reply.code(201).send({ order });

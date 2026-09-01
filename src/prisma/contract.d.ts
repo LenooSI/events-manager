@@ -33,7 +33,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'6d554349561955fb7faab530d23bf461f2bdce71f90f662cf9444f237c25700c'>;
+  StorageHashBase<'a84901c1c9d6d5d8400f3c1b9e0790ce37164d1e5bc6ceb04b86bb9b37cd61d3'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -266,6 +266,10 @@ export type FieldOutputTypes = {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly paidAt: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
     };
+    readonly PresenceConfirmation: {
+      readonly guestId: CodecTypes['pg/int4@1']['output'];
+      readonly weddingId: CodecTypes['pg/int4@1']['output'];
+    };
     readonly User: {
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly name: CodecTypes['pg/text@1']['output'];
@@ -310,6 +314,10 @@ export type FieldInputTypes = {
       readonly paymentId: CodecTypes['pg/text@1']['input'] | null;
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
       readonly paidAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
+    };
+    readonly PresenceConfirmation: {
+      readonly guestId: CodecTypes['pg/int4@1']['input'];
+      readonly weddingId: CodecTypes['pg/int4@1']['input'];
     };
     readonly User: {
       readonly id: CodecTypes['pg/int4@1']['input'];
@@ -356,6 +364,10 @@ export type StorageColumnTypes = {
       readonly paymentId: CodecTypes['pg/text@1']['output'] | null;
       readonly status: CodecTypes['pg/text@1']['output'];
     };
+    readonly presenceConfirmation: {
+      readonly guestId: CodecTypes['pg/int4@1']['output'];
+      readonly weddingId: CodecTypes['pg/int4@1']['output'];
+    };
     readonly user: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly email: CodecTypes['pg/text@1']['output'];
@@ -400,6 +412,10 @@ export type StorageColumnInputTypes = {
       readonly paidAt: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
       readonly paymentId: CodecTypes['pg/text@1']['input'] | null;
       readonly status: CodecTypes['pg/text@1']['input'];
+    };
+    readonly presenceConfirmation: {
+      readonly guestId: CodecTypes['pg/int4@1']['input'];
+      readonly weddingId: CodecTypes['pg/int4@1']['input'];
     };
     readonly user: {
       readonly createdAt: CodecTypes['pg/timestamptz-temporal@1']['input'];
@@ -632,6 +648,62 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly presenceConfirmation: {
+              columns: {
+                readonly guestId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                };
+                readonly weddingId: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                };
+              };
+              primaryKey: { readonly columns: readonly ['guestId', 'weddingId'] };
+              uniques: readonly [];
+              indexes: readonly [
+                {
+                  readonly name: 'presenceConfirmation_guestId_idx_39c95865';
+                  readonly prefix: 'presenceConfirmation_guestId_idx';
+                  readonly columns: readonly ['guestId'];
+                  readonly unique: false;
+                },
+                {
+                  readonly name: 'presenceConfirmation_weddingId_idx_b30e5447';
+                  readonly prefix: 'presenceConfirmation_weddingId_idx';
+                  readonly columns: readonly ['weddingId'];
+                  readonly unique: false;
+                },
+              ];
+              foreignKeys: readonly [
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'presenceConfirmation';
+                    readonly columns: readonly ['guestId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'guest';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+                {
+                  readonly source: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'presenceConfirmation';
+                    readonly columns: readonly ['weddingId'];
+                  };
+                  readonly target: {
+                    readonly namespaceId: 'public' & NamespaceId;
+                    readonly tableName: 'wedding';
+                    readonly columns: readonly ['id'];
+                  };
+                },
+              ];
+            };
             readonly user: {
               columns: {
                 readonly id: {
@@ -749,6 +821,10 @@ type ContractBase = Omit<
     readonly gift: { readonly namespace: 'public' & NamespaceId; readonly model: 'Gift' };
     readonly order: { readonly namespace: 'public' & NamespaceId; readonly model: 'Order' };
     readonly guest: { readonly namespace: 'public' & NamespaceId; readonly model: 'Guest' };
+    readonly presenceConfirmation: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'PresenceConfirmation';
+    };
   };
   readonly domain: {
     readonly namespaces: {
@@ -836,6 +912,17 @@ type ContractBase = Omit<
               };
             };
             readonly relations: {
+              readonly confirmations: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'PresenceConfirmation';
+                };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['guestId'];
+                };
+              };
               readonly orders: {
                 readonly to: {
                   readonly namespace: 'public' & NamespaceId;
@@ -951,6 +1038,50 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly PresenceConfirmation: {
+            readonly fields: {
+              readonly guestId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly weddingId: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+            };
+            readonly relations: {
+              readonly guest: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Guest';
+                };
+                readonly cardinality: 'N:1';
+                readonly on: {
+                  readonly localFields: readonly ['guestId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+              readonly wedding: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'Wedding';
+                };
+                readonly cardinality: 'N:1';
+                readonly on: {
+                  readonly localFields: readonly ['weddingId'];
+                  readonly targetFields: readonly ['id'];
+                };
+              };
+            };
+            readonly storage: {
+              readonly table: 'presenceConfirmation';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly guestId: { readonly column: 'guestId' };
+                readonly weddingId: { readonly column: 'weddingId' };
+              };
+            };
+          };
           readonly User: {
             readonly fields: {
               readonly id: {
@@ -1038,6 +1169,17 @@ type ContractBase = Omit<
             readonly relations: {
               readonly gifts: {
                 readonly to: { readonly namespace: 'public' & NamespaceId; readonly model: 'Gift' };
+                readonly cardinality: '1:N';
+                readonly on: {
+                  readonly localFields: readonly ['id'];
+                  readonly targetFields: readonly ['weddingId'];
+                };
+              };
+              readonly guestList: {
+                readonly to: {
+                  readonly namespace: 'public' & NamespaceId;
+                  readonly model: 'PresenceConfirmation';
+                };
                 readonly cardinality: '1:N';
                 readonly on: {
                   readonly localFields: readonly ['id'];

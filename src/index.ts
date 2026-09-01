@@ -11,6 +11,7 @@ import { ordersRoutes } from "./routes/orders";
 import { giftsRoutes } from "./routes/gifts";
 import { guestsRoutes } from "./routes/guests";
 import { weddingsRoutes } from "./routes/weddings";
+import {presenceConfirmationRoutes} from "./routes/presenceConfirmation";
 
 const app = Fastify({ logger: true });
 
@@ -19,6 +20,7 @@ app.register(ordersRoutes);
 app.register(giftsRoutes);
 app.register(guestsRoutes);
 app.register(weddingsRoutes);
+app.register(presenceConfirmationRoutes);
 
 app.get("/health", async () => {
   return { status: "ok" };

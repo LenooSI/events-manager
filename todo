@@ -4,4 +4,6 @@ configurar banco postgree
 noivos criam o casamento e lista presentes
 convidado se cadastra, confirma presença, escolhe presente
 publicar no github
+tabela assossiativa
+criar a rota para cofirmação de presença
 */
