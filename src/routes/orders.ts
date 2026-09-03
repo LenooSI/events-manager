@@ -1,33 +1,67 @@
-import { Temporal } from "@js-temporal/polyfill";
 import { FastifyInstance } from "fastify";
 import { db } from "../prisma/db";
 
 export async function ordersRoutes(app: FastifyInstance) {
-  app.post("/orders", async (request, reply) => {
-    const body = request.body as {
-      giftId: number;
-      guestId: number;
-      guestName: string;
-      guestEmail: string;
-      message?: string;
-      amount: number;
-      status: string;
-      paymentId?: string;
-      paidAt?: string;
-    };
+  app.post(
+    "/orders",
+    {
+      schema: {
+        body: {
+          type: "object",
+          required: ["giftId", "guestId"],
+          properties: {
+            giftId: { type: "integer", minimum: 1 },
+            guestId: { type: "integer", minimum: 1 },
+            message: { type: "string" },
+          },
+          additionalProperties: false,
+        },
+      },
+    },
+    async (request, reply) => {
+      const body = request.body as {
+        giftId: number;
+        guestId: number;
+        message?: string;
+      };
 
-    const order = await db.orm.public.Order.create({
-      giftId: body.giftId,
-      guestId: body.guestId,
-      guestName: body.guestName,
-      guestEmail: body.guestEmail,
-      message: body.message,
-      amount: body.amount,
-      status: body.status,
-      paymentId: body.paymentId,
-      paidAt: body.paidAt ? Temporal.Instant.from(body.paidAt) : undefined,
-    });
+      const gift = await db.orm.public.Gift
+        .where({ id: body.giftId })
+        .first();
 
-    return reply.code(201).send({ order });
-  });
+      if (!gift) {
+        return reply.code(404).send({
+          error: "Gift not found",
+        });
+      }
+
+      const guest = await db.orm.public.Guest
+        .where({ id: body.guestId })
+        .first();
+
+      if (!guest) {
+        return reply.code(404).send({
+          error: "Guest not found",
+        });
+      }
+
+      if (gift.price === null || gift.price === undefined) {
+        return reply.code(400).send({
+          error: "Gift has no price",
+        });
+      }
+
+      const order = await db.orm.public.Order.create({
+        giftId: gift.id,
+        guestId: guest.id,
+        guestName: guest.name,
+        guestEmail: guest.email,
+        message: body.message,
+        amount: gift.price,
+        status: "PENDING",
+      });
+
+      return reply.code(201).send({ order });
+    },
+  );
 }

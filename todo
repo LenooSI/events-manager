@@ -6,4 +6,5 @@ convidado se cadastra, confirma presença, escolhe presente
 publicar no github
 tabela assossiativa
 criar a rota para cofirmação de presença
+somente o "dono" pode editar o casamento, para isso preciso de ser capaz de logar (sem nescessidade de JWT nem nada complexo)
 */

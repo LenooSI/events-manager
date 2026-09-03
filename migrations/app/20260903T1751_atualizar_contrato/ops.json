@@ -1,0 +1,203 @@
+[
+  {
+    "id": "table.presenceConfirmation",
+    "label": "Create table \"presenceConfirmation\"",
+    "summary": "Creates table \"presenceConfirmation\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "presenceConfirmation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"presenceConfirmation\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"presenceConfirmation\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"presenceConfirmation\"",
+        "sql": "CREATE TABLE \"public\".\"presenceConfirmation\" (\n  \"guestId\" int4 NOT NULL,\n  \"weddingId\" int4 NOT NULL,\n  PRIMARY KEY (\"guestId\", \"weddingId\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"presenceConfirmation\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"presenceConfirmation\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.presenceConfirmation.presenceConfirmation_guestId_idx_39c95865",
+    "label": "Create index \"presenceConfirmation_guestId_idx_39c95865\" on \"presenceConfirmation\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "presenceConfirmation_guestId_idx_39c95865",
+        "table": "presenceConfirmation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"presenceConfirmation_guestId_idx_39c95865\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"presenceConfirmation_guestId_idx_39c95865\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"presenceConfirmation_guestId_idx_39c95865\"",
+        "sql": "CREATE INDEX \"presenceConfirmation_guestId_idx_39c95865\" ON \"public\".\"presenceConfirmation\" (\"guestId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"presenceConfirmation_guestId_idx_39c95865\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"presenceConfirmation_guestId_idx_39c95865\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.presenceConfirmation.presenceConfirmation_weddingId_idx_b30e5447",
+    "label": "Create index \"presenceConfirmation_weddingId_idx_b30e5447\" on \"presenceConfirmation\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "presenceConfirmation_weddingId_idx_b30e5447",
+        "table": "presenceConfirmation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"presenceConfirmation_weddingId_idx_b30e5447\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"presenceConfirmation_weddingId_idx_b30e5447\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"presenceConfirmation_weddingId_idx_b30e5447\"",
+        "sql": "CREATE INDEX \"presenceConfirmation_weddingId_idx_b30e5447\" ON \"public\".\"presenceConfirmation\" (\"weddingId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"presenceConfirmation_weddingId_idx_b30e5447\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"presenceConfirmation_weddingId_idx_b30e5447\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.presenceConfirmation.presenceConfirmation_guestId_fkey",
+    "label": "Add foreign key \"presenceConfirmation_guestId_fkey\" on \"presenceConfirmation\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "presenceConfirmation_guestId_fkey",
+        "table": "presenceConfirmation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"presenceConfirmation_guestId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "presenceConfirmation_guestId_fkey",
+          "public",
+          "\"public\".\"presenceConfirmation\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"presenceConfirmation_guestId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"presenceConfirmation\"\nADD CONSTRAINT \"presenceConfirmation_guestId_fkey\"\nFOREIGN KEY (\"guestId\")\nREFERENCES \"public\".\"guest\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"presenceConfirmation_guestId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "presenceConfirmation_guestId_fkey",
+          "public",
+          "\"public\".\"presenceConfirmation\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.presenceConfirmation.presenceConfirmation_weddingId_fkey",
+    "label": "Add foreign key \"presenceConfirmation_weddingId_fkey\" on \"presenceConfirmation\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "presenceConfirmation_weddingId_fkey",
+        "table": "presenceConfirmation"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"presenceConfirmation_weddingId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "presenceConfirmation_weddingId_fkey",
+          "public",
+          "\"public\".\"presenceConfirmation\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"presenceConfirmation_weddingId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"presenceConfirmation\"\nADD CONSTRAINT \"presenceConfirmation_weddingId_fkey\"\nFOREIGN KEY (\"weddingId\")\nREFERENCES \"public\".\"wedding\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"presenceConfirmation_weddingId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "presenceConfirmation_weddingId_fkey",
+          "public",
+          "\"public\".\"presenceConfirmation\""
+        ]
+      }
+    ]
+  }
+]

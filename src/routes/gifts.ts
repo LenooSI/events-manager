@@ -54,6 +54,13 @@ export async function giftsRoutes(app: FastifyInstance) {
       });
 
       return reply.code(201).send({ gift });
-    }
-  );
+    });
+  //@todo route to list gifts
+
+  app.get("/gifts/:weddingId", async (request, reply) => {
+    const weddingId = (request.params as {weddingId: string}).weddingId
+    
+    const gifts = await db.orm.public.Gift.where({weddingId: Number (weddingId)}).all();
+      return gifts;
+  });
 }

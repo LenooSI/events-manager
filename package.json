@@ -13,13 +13,16 @@
     "contract:emit": "prisma contract emit"
   },
   "dependencies": {
+    "@fastify/jwt": "^10.2.2",
     "@js-temporal/polyfill": "^0.5.1",
     "@prisma/client": "^7.10.0",
     "@prisma/orm-postgres": "^8.0.0-rc.8",
+    "bcrypt": "^6.0.0",
     "fastify": "^5.12.1"
   },
   "devDependencies": {
     "@prisma/cli-engine": "^0.2.3",
+    "@types/bcrypt": "^6.0.0",
     "@types/node": "^26.2.0",
     "dotenv": "^17.4.2",
     "prisma": "^8.0.0-rc.10",

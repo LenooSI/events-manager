@@ -65,4 +65,57 @@ export async function weddingsRoutes(app: FastifyInstance) {
 
     return reply.send({ guests });
   });
+
+  app.get("/weddings/:weddingId/gifts", async (request, reply) => {
+    const { weddingId } = request.params as { weddingId: string };
+    const id = Number(weddingId);
+
+    if (!Number.isInteger(id) || id <= 0) {
+      return reply.code(400).send({
+        error: "Invalid weddingId",
+      });
+    }
+
+    const gifts = await db.orm.public.Gift.where({ weddingId: id }).all();
+
+    return reply.send({ gifts });
+  });
+
+  app.put("/wedding/:weddingId", async (request, reply) => {
+    const { weddingId } = request.params as { weddingId: string };
+    const id = Number(weddingId);
+
+    if (!Number.isInteger(id) || id <= 0) {
+      return reply.code(400).send({
+        error: "Invalid weddingId",
+      });
+    }
+
+    const body = request.body as {
+      coco123?: string;
+      coco1234?: string;
+      coco12345?: string;
+    };
+    const wedding = await db.orm.public.Wedding.where({ id: id }).first();
+
+    if (!wedding) {
+      return reply.code(404).send({
+        error: "Casamento não encontrado",
+      });
+    }
+    const updates = {
+      coupleName: body.coco123 ?? wedding.coupleName,
+      slug: body.coco1234 ?? wedding.slug,
+      weddingDate: body.coco12345 ?? wedding.weddingDate,
+    };
+
+    wedding.coupleName = updates.coupleName;
+    wedding.slug = updates.slug;
+
+    wedding.weddingDate = Temporal.Instant.from(updates.weddingDate);
+
+    await db.orm.public.Wedding.where({ id: id }).update(wedding);
+
+    reply.code(201).send({ wedding });
+  });
 }
