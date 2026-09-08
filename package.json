@@ -10,7 +10,10 @@
     "dev": "tsx watch src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "prisma skills sync || exit 0",
-    "contract:emit": "prisma contract emit"
+    "contract:emit": "prisma contract emit",
+    "migration:generate": "prisma migration plan --name",
+    "migration:run": "prisma db migrate"
+    
   },
   "dependencies": {
     "@fastify/jwt": "^10.2.2",

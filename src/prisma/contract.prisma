@@ -71,3 +71,11 @@ model PresenceConfirmation {
 
   @@id([guestId, weddingId])
 }
+
+model Session {
+  id String
+  ownerId     Int
+  owner       User     @relation(fields: [ownerId], references: [id])
+  tokenHash String
+  expiresAt DateTime
+}
