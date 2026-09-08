@@ -92,9 +92,9 @@ export async function weddingsRoutes(app: FastifyInstance) {
     }
 
     const body = request.body as {
-      coco123?: string;
-      coco1234?: string;
-      coco12345?: string;
+      newCoupleName?: string;
+      newSlug?: string;
+      NewWeddingDate?: string;
     };
     const wedding = await db.orm.public.Wedding.where({ id: id }).first();
 
@@ -104,9 +104,9 @@ export async function weddingsRoutes(app: FastifyInstance) {
       });
     }
     const updates = {
-      coupleName: body.coco123 ?? wedding.coupleName,
-      slug: body.coco1234 ?? wedding.slug,
-      weddingDate: body.coco12345 ?? wedding.weddingDate,
+      coupleName: body.newCoupleName ?? wedding.coupleName,
+      slug: body.newSlug ?? wedding.slug,
+      weddingDate: body.NewWeddingDate ?? wedding.weddingDate,
     };
 
     wedding.coupleName = updates.coupleName;
