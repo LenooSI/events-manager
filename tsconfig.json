@@ -11,5 +11,12 @@
     "types": [
       "node"
     ]
-  }
+  },
+  "files": [
+    "src/index.d.ts"
+  ],
+  "include": [
+    "**/*.ts",
+    "**/*.d.ts"
+  ]
 }

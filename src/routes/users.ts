@@ -3,6 +3,7 @@ import { db } from "../prisma/db";
 import { hashPassword, verifyPassword } from "../auth/password-hashing";
 import { request } from "node:http";
 import { createSessionToken } from "../auth/session-generation";
+import { Temporal } from "@js-temporal/polyfill";
 
 export async function userRoutes(app: FastifyInstance) {
   app.get("/users", async () => {
@@ -16,7 +17,7 @@ export async function userRoutes(app: FastifyInstance) {
       schema: {
         body: {
           type: "object",
-          required: ["name", "email", "passwordHash"],
+          required: ["name", "email", "password"],
           properties: {
             name: { type: "string", minLength: 1 },
             email: { type: "string", minLength: 1 },
@@ -36,7 +37,7 @@ export async function userRoutes(app: FastifyInstance) {
       if (!body.name || !body.email || !body.password) {
         return reply.code(400).send({
           error: "Missing required fields",
-          required: ["name", "email", "passwordHash"],
+          required: ["name", "email", "password"],
         });
       }
 
@@ -68,30 +69,33 @@ export async function userRoutes(app: FastifyInstance) {
       });
     }
 
-    const isSamePassword = await verifyPassword(body.password, searchUser.passwordHash);
+    const isSamePassword = await verifyPassword(
+      body.password,
+      searchUser.passwordHash,
+    );
 
-    if(!isSamePassword){
+    if (!isSamePassword) {
       return reply.code(401).send({
-        error: "wrong password"
-      })
+        error: "wrong password",
+      });
     }
 
     const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 7);
 
-const sessionId = crypto.randomUUID();
+    const sessionId = crypto.randomUUID();
 
-const { token, tokenHash } = createSessionToken(sessionId, expiresAt);
+    const { token, tokenHash } = createSessionToken(sessionId, expiresAt);
 
-await db.orm.public.Session.create({
-  id: sessionId,
-  ownerId: searchUser.id,
-  tokenHash,
-  expiresAt,
-});
+    await db.orm.public.Session.create({
+      id: sessionId,
+      ownerId: searchUser.id,
+      tokenHash,
+      expiresAt: Temporal.Instant.from(expiresAt.toISOString()),
+    });
 
-return reply.code(200).send({
-  token,
-  expiresAt,
-});
+    return reply.code(200).send({
+      token,
+      expiresAt,
+    });
   });
 }

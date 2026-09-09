@@ -15,6 +15,7 @@ import { presenceConfirmationRoutes } from "./routes/presenceConfirmation";
 
 const app = Fastify({ logger: true });
 
+app.decorateRequest('appSession', null);
 app.register(userRoutes);
 app.register(ordersRoutes);
 app.register(giftsRoutes);

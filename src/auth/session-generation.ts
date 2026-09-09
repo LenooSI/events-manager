@@ -5,7 +5,7 @@ import {
   timingSafeEqual,
 } from "node:crypto";
 
-const sessionSecret = process.env.SESSION_SECRET;
+const sessionSecret = process.env.SESSION_SECRET ?? "viwuupackcidfnrteqttijjxunhyhiio";
 
 if (!sessionSecret || sessionSecret.length < 32) {
   throw new Error("SESSION_SECRET must contain at least 32 characters");

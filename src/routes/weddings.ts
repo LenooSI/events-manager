@@ -1,15 +1,17 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { FastifyInstance } from "fastify";
 import { db } from "../prisma/db";
+import { authenticate } from "../auth/hooks/authenticate";
 
 export async function weddingsRoutes(app: FastifyInstance) {
   app.post(
     "/weddings",
     {
+      preHandler: authenticate,
       schema: {
         body: {
           type: "object",
-          required: ["coupleName", "slug", "weddingDate", "ownerId"],
+          required: ["coupleName", "slug", "weddingDate"],
           properties: {
             coupleName: { type: "string", minLength: 1 },
             slug: { type: "string", minLength: 1 },
@@ -28,12 +30,7 @@ export async function weddingsRoutes(app: FastifyInstance) {
         ownerId: number;
       };
 
-      if (
-        !body.coupleName ||
-        !body.slug ||
-        !body.weddingDate ||
-        !body.ownerId
-      ) {
+      if (!body.coupleName || !body.slug || !body.weddingDate) {
         return reply.code(400).send({
           error: "Missing required fields",
           required: ["coupleName", "slug", "weddingDate", "ownerId"],
@@ -44,7 +41,7 @@ export async function weddingsRoutes(app: FastifyInstance) {
         coupleName: body.coupleName,
         slug: body.slug,
         weddingDate: Temporal.Instant.from(body.weddingDate),
-        ownerId: body.ownerId,
+        ownerId: request.appSession?.ownerId,
       });
 
       return reply.code(201).send({ wedding });
@@ -81,41 +78,70 @@ export async function weddingsRoutes(app: FastifyInstance) {
     return reply.send({ gifts });
   });
 
-  app.put("/wedding/:weddingId", async (request, reply) => {
-    const { weddingId } = request.params as { weddingId: string };
-    const id = Number(weddingId);
+  app.put(
+    "/wedding/:weddingId",
+    {
+      preHandler: authenticate,
+    },
+    async (request, reply) => {
+      const { weddingId } = request.params as { weddingId: string };
+      const id = Number(weddingId);
 
-    if (!Number.isInteger(id) || id <= 0) {
-      return reply.code(400).send({
-        error: "Invalid weddingId",
+      if (!Number.isInteger(id) || id <= 0) {
+        return reply.code(400).send({
+          error: "Invalid weddingId",
+        });
+      }
+
+      const body = request.body as {
+        newCoupleName?: string;
+        newSlug?: string;
+        NewWeddingDate?: string;
+      };
+      const wedding = await db.orm.public.Wedding.where({ id: id }).first();
+
+      if (!wedding) {
+        return reply.code(404).send({
+          error: "Wedding not found",
+        });
+      }
+
+      if (wedding.ownerId !== request.appSession?.ownerId) {
+        return reply.code(401).send({
+          error: "User without permission",
+        });
+      }
+
+      const updates = {
+        coupleName: body.newCoupleName ?? wedding.coupleName,
+        slug: body.newSlug ?? wedding.slug,
+        weddingDate: body.NewWeddingDate ?? wedding.weddingDate,
+      };
+
+      wedding.coupleName = updates.coupleName;
+      wedding.slug = updates.slug;
+
+      wedding.weddingDate = Temporal.Instant.from(updates.weddingDate);
+
+      await db.orm.public.Wedding.where({ id: id }).update(wedding);
+
+      reply.code(201).send({ wedding });
+    },
+  );
+
+  app.get(
+    "/wedding",
+    {
+      preHandler: authenticate,
+    },
+    async (request, reply) => {
+      const ownerWeddings = await db.orm.public.Wedding.where({
+        ownerId: request.appSession?.ownerId,
+      }).all();
+
+      return reply.code(200).send({
+        ownerWeddings: ownerWeddings,
       });
-    }
-
-    const body = request.body as {
-      newCoupleName?: string;
-      newSlug?: string;
-      NewWeddingDate?: string;
-    };
-    const wedding = await db.orm.public.Wedding.where({ id: id }).first();
-
-    if (!wedding) {
-      return reply.code(404).send({
-        error: "Casamento não encontrado",
-      });
-    }
-    const updates = {
-      coupleName: body.newCoupleName ?? wedding.coupleName,
-      slug: body.newSlug ?? wedding.slug,
-      weddingDate: body.NewWeddingDate ?? wedding.weddingDate,
-    };
-
-    wedding.coupleName = updates.coupleName;
-    wedding.slug = updates.slug;
-
-    wedding.weddingDate = Temporal.Instant.from(updates.weddingDate);
-
-    await db.orm.public.Wedding.where({ id: id }).update(wedding);
-
-    reply.code(201).send({ wedding });
-  });
+    },
+  );
 }
