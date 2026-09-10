@@ -135,12 +135,79 @@ export async function weddingsRoutes(app: FastifyInstance) {
       preHandler: authenticate,
     },
     async (request, reply) => {
-      const ownerWeddings = await db.orm.public.Wedding.where({
-        ownerId: request.appSession?.ownerId,
-      }).all();
+      const { shouldReturnAll } = request.query as { shouldReturnAll: string };
+
+      if (shouldReturnAll === "false") {
+        const ownerWeddings = await db.orm.public.Wedding.where({
+          ownerId: request.appSession?.ownerId,
+        }).all();
+
+        return reply.code(200).send({
+          weddings: ownerWeddings,
+        });
+      }
+
+      const allWeddings = await db.orm.public.Wedding.where({}).all();
 
       return reply.code(200).send({
-        ownerWeddings: ownerWeddings,
+        weddings: allWeddings,
+      });
+    },
+  );
+
+  app.get("/weddings/:slug", async (request, reply) => {
+    const { slug } = request.params as { slug: string };
+
+    const wedding = await db.orm.public.Wedding.where({ slug }).first();
+
+    if (!wedding) {
+      return reply.code(404).send({
+        error: "Wedding not found",
+      });
+    }
+
+    const presenceConfirmations =
+      await db.orm.public.PresenceConfirmation.where({ weddingId: wedding.id })
+        .include("guest", (guest) => guest)
+        .all();
+
+    const guests = presenceConfirmations.map(
+      (confirmation) => confirmation.guest,
+    );
+
+    const gifts = await db.orm.public.Gift.where({
+      weddingId: wedding.id,
+    }).all();
+
+    return reply.code(200).send({
+      wedding,
+      guests,
+      gifts,
+    });
+  });
+
+  app.delete( //corrigir, atualmente apaga todos os casamentos e não apenas do usuário
+    "/wedding",
+    {
+      preHandler: authenticate,
+    },
+    async (request, reply) => {
+      const { weddingIds } = request.query as { weddingIds: string };
+      // /wedding?weddingIds=1,2,3
+      const weddingIdsList = weddingIds
+        .split(",")
+        .map((textId) => Number(textId));
+
+      for (const id of weddingIdsList) {
+        const deleteGuest = await db.orm.public.PresenceConfirmation.where({ weddingId: id }).delete();
+        const deleteGifts = await db.orm.public.Gift.where({ weddingId: id }).delete();
+        const deleteWedding = await db.orm.public.Wedding.where({
+          id: id,
+        }).delete();
+      }
+
+      return reply.code(200).send({
+        success: true,
       });
     },
   );

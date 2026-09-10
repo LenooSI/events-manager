@@ -4,12 +4,19 @@ import { hashPassword, verifyPassword } from "../auth/password-hashing";
 import { request } from "node:http";
 import { createSessionToken } from "../auth/session-generation";
 import { Temporal } from "@js-temporal/polyfill";
+import { authenticate } from "../auth/hooks/authenticate";
 
 export async function userRoutes(app: FastifyInstance) {
-  app.get("/users", async () => {
-    const users = await db.orm.public.User.all();
-    return users;
-  });
+  app.get(
+    "/users",
+    {
+      preHandler: authenticate,
+    },
+    async () => {
+      const users = await db.orm.public.User.all();
+      return users.map(({ passwordHash, ...user }) => user);
+    },
+  );
 
   app.post(
     "/users",
@@ -49,7 +56,11 @@ export async function userRoutes(app: FastifyInstance) {
         passwordHash: hashedPassword,
       });
 
-      return reply.code(201).send({ user });
+      const { passwordHash, ...safeUser } = user;
+
+      return reply.code(201).send({
+        user: safeUser,
+      }); 
     },
   );
 
