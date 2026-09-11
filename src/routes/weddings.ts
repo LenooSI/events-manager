@@ -186,23 +186,43 @@ export async function weddingsRoutes(app: FastifyInstance) {
     });
   });
 
-  app.delete( //corrigir, atualmente apaga todos os casamentos e não apenas do usuário
+  app.delete(
     "/wedding",
     {
       preHandler: authenticate,
     },
     async (request, reply) => {
       const { weddingIds } = request.query as { weddingIds: string };
-      // /wedding?weddingIds=1,2,3
+
       const weddingIdsList = weddingIds
         .split(",")
         .map((textId) => Number(textId));
 
       for (const id of weddingIdsList) {
-        const deleteGuest = await db.orm.public.PresenceConfirmation.where({ weddingId: id }).delete();
-        const deleteGifts = await db.orm.public.Gift.where({ weddingId: id }).delete();
+        const wedding = await db.orm.public.Wedding.where({
+          id,
+        }).first();
+
+        if (!wedding) {
+          return reply.code(404).send({
+            error: "Wedding not found",
+          });
+        }
+
+        if (wedding.ownerId !== request.appSession?.ownerId) {
+          return reply.code(401).send({
+            error: "User without permission",
+          });
+        }
+
+        const deleteGuest = await db.orm.public.PresenceConfirmation.where({
+          weddingId: id,
+        }).delete();
+        const deleteGifts = await db.orm.public.Gift.where({
+          weddingId: id,
+        }).delete();
         const deleteWedding = await db.orm.public.Wedding.where({
-          id: id,
+          id,
         }).delete();
       }
 

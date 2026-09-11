@@ -93,4 +93,50 @@ export async function giftsRoutes(app: FastifyInstance) {
       return gifts;
     },
   );
+
+  app.delete(
+  "/gift",
+  {
+    preHandler: authenticate,
+  },
+  async (request, reply) => {
+    const { giftIds } = request.query as { giftIds: string };
+
+    const giftIdsList = giftIds
+      .split(",")
+      .map((textId) => Number(textId));
+
+    for (const id of giftIdsList) {
+      const gift = await db.orm.public.Gift.where({ id }).first();
+
+      if (!gift) {
+        return reply.code(404).send({
+          error: "Gift not found",
+        });
+      }
+
+      const wedding = await db.orm.public.Wedding.where({
+        id: gift.weddingId,
+      }).first();
+
+      if (!wedding) {
+        return reply.code(404).send({
+          error: "Wedding not found",
+        });
+      }
+
+      if (wedding.ownerId !== request.appSession?.ownerId) {
+        return reply.code(401).send({
+          error: "User without permission",
+        });
+      }
+
+      await db.orm.public.Gift.where({ id }).delete();
+    }
+
+    return reply.code(200).send({
+      success: true,
+    });
+  },
+);
 }
