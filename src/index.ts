@@ -1,5 +1,6 @@
 import "@js-temporal/polyfill";
 import { Temporal } from "@js-temporal/polyfill";
+import cors from "@fastify/cors";
 
 (globalThis as typeof globalThis & { Temporal?: typeof Temporal }).Temporal =
   Temporal;
@@ -14,6 +15,10 @@ import { weddingsRoutes } from "./routes/weddings";
 import { presenceConfirmationRoutes } from "./routes/presenceConfirmation";
 
 const app = Fastify({ logger: true });
+
+app.register(cors, {
+  origin: true,
+});
 
 app.decorateRequest('appSession', null);
 app.register(userRoutes);

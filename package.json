@@ -13,9 +13,9 @@
     "contract:emit": "prisma contract emit",
     "migration:generate": "prisma migration plan --name",
     "migration:run": "prisma db migrate"
-    
   },
   "dependencies": {
+    "@fastify/cors": "^11.3.0",
     "@fastify/jwt": "^10.2.2",
     "@js-temporal/polyfill": "^0.5.1",
     "@prisma/client": "^7.10.0",

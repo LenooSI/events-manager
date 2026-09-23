@@ -183,6 +183,8 @@ export async function weddingsRoutes(app: FastifyInstance) {
       wedding,
       guests,
       gifts,
+      giftCount: gifts.length,
+      guestCount: guests.length,
     });
   });
 
